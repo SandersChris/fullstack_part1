@@ -3,20 +3,50 @@ import ReactDOM from 'react-dom'
 
 const Anecdotes = ({anecdotes}) => <div>{anecdotes}</div>
 
-const Button = ({onClick}) => 
-    <button onClick={onClick}>Next Anecdote</button>
+const Button = ({text, onClick}) => 
+    <button onClick={onClick}>{text}</button>
+
+const Score = ({score}) => 
+    <div>{score}</div>
+
+const Header = ({header}) => <h1>{header}</h1>
+
+const Top = ({top, name}) => {
+    let largest = 0
+    for (let t of top) 
+        if (t > largest) largest = t;
+
+    return (
+        <div>
+            <p>{name[top.indexOf(largest)]}</p>
+            <p>has the most likes at: {largest}</p>
+        </div>
+        )
+}
     
 const App = () => {
   const [selected, setSelected] = useState(0)
+  const [liked, setLiked] = useState(new Array(anecdotes.length).fill(0))
 
-  const handleClick = () => {
+  const handleNext = () => {
     setSelected(Math.floor(Math.random() * anecdotes.length))
+  }
+
+  const handleLike = (selected) => () => {
+    const copy = [...liked]
+    copy[selected]++;
+    setLiked(copy)
   }
 
   return (
     <div>
-        <Anecdotes anecdotes={anecdotes[selected]}/>
-        <Button onClick={handleClick}/>
+        <Header header="Anecdote of the Day" />
+            <Anecdotes anecdotes={anecdotes[selected]}/>
+            <Score score={`has ${liked[selected]} votes`}/>
+            <Button text="Next Anecdote" onClick={handleNext}/>
+            <Button text="Like" onClick={handleLike(selected)} />
+        <Header header="Top Anecdote" />
+            <Top name={anecdotes} top={liked}/>
     </div>
   )
 }
