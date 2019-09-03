@@ -1,112 +1,55 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-// initializes generic buttons
-const Button = ({ onClick, text}) => 
-    <button onClick={onClick}>{text}</button>;
 
-// creates generic h2 headers
-const Header = ({text}) => <h2>{text}</h2>;
-
-// creates generic stat type
-const StatType = ({type, num}) => {
-    if (isNaN(num) && type === "Average") 
-        return <div>No feedback given</div>;
-    else if ((num === 0 || isNaN(num)) && type !== "Average") 
-        return <div></div>
-    return <p>{type}: {num}</p>;
-}
-
-const Statistics = ({ good, neutral, bad, all, average, pos }) => {
-    return(
-        <div>
-            <table>
-                <tbody>
-                    <tr>
-                        <td><StatType type="Good" num={good} /></td>
-                    </tr>
-                    <tr>
-                        <td><StatType type="Neutral" num={neutral} /></td>
-                    </tr>
-                    <tr>
-                        <td><StatType type="Bad" num={bad} /></td>
-                    </tr>
-                    <tr>
-                        <td><StatType type="All" num={all} /></td>
-                    </tr>
-                    <tr>
-                    <td><StatType type="Average" num={average} /></td>
-                    </tr>
-                    <tr>
-                        <td><StatType type="Positive Percentage" num={pos} /></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    )
-}
-
-const Buttons = ({handleGood, handleNeutral, handleBad}) => {
+const Header = props => {
     return (
-        <div>
-            <Button text="Good" onClick={handleGood} />
-            <Button text="Neutral" onClick={handleNeutral} />
-            <Button text="Bad" onClick={handleBad} />
-        </div>
+        <h1>{props.header}</h1>
     )
 }
- 
+
+const Content = props => {
+    return (
+        <p>{props.name} {props.ex}</p>
+    )
+
+}
+
+const Total = props => {
+    return (
+        <p>{props.total}</p>
+    )
+
+}
+
 const App = () => {
-    // save clicks of each button to own state
-    const [good, setGood] = useState(0)
-    const [neutral, setNeutral] = useState(0)
-    const [bad, setBad] = useState(0)
-    const [average, setAverage] = useState(0)
-
-    // handle all button clicks
-    const handleGood = () => {
-        setGood(good + 1);
-        setAverage(average + 1);
+    const course = {
+      name: 'Half Stack application development',
+      parts: [
+        {
+          name: 'Fundamentals of React',
+          exercises: 10
+        },
+        {
+          name: 'Using props to pass data',
+          exercises: 7
+        },
+        {
+          name: 'State of a component',
+          exercises: 14
+        }
+      ]
     }
-
-    const handleNeutral = () => {
-        setNeutral(neutral + 1);
-        setAverage(average);
-    }
-
-    const handleBad = () => {
-        setBad(bad + 1);
-        setAverage(average - 1);
-    }
-
-    const all = (good, neutral, bad) => { 
-        return good + neutral + bad;
-    }
-
-    const positive = (good, neutral, bad) => {
-        let total = good + neutral + bad;
-        let positivePercent = (good / total) * 100
-
-        return `${positivePercent.toFixed(2)}`
-    }
-
+  
     return (
       <div>
-        <Header text="Give Feedback" />
-            <Buttons handleGood={handleGood} 
-                     handleNeutral={handleNeutral} 
-                     handleBad={handleBad}/>
-
-        <Header text="Statistics" />    
-            <Statistics good={good} 
-                        bad={bad} 
-                        neutral={neutral} 
-                        all={all(good, neutral, bad)} 
-                        average={average / all(good,neutral, bad)}
-                        pos={positive(good,neutral, bad)}/>
+            <Header header={course.name}/>
+            <Content name ={course.parts[0].name} ex={course.parts[0].exercises}/>
+            <Content name ={course.parts[1].name} ex={course.parts[1].exercises}/>
+            <Content name ={course.parts[2].name} ex={course.parts[2].exercises}/>
+            <Total total={course.parts[0].exercises + course.parts[1].exercises + course.parts[2].exercises}/>
       </div>
     )
   }
 
-ReactDOM.render(<App />, document.getElementById('root'));
-
+ReactDOM.render(<App />, document.getElementById('root'))
