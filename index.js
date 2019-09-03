@@ -1,68 +1,112 @@
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 
-const Anecdotes = ({anecdotes}) => <div>{anecdotes}</div>
+// initializes generic buttons
+const Button = ({ onClick, text}) => 
+    <button onClick={onClick}>{text}</button>;
 
-const Button = ({text, onClick}) => 
-    <button onClick={onClick}>{text}</button>
+// creates generic h2 headers
+const Header = ({text}) => <h2>{text}</h2>;
 
-const Score = ({score}) => 
-    <div>{score}</div>
+// creates generic stat type
+const StatType = ({type, num}) => {
+    if (isNaN(num) && type === "Average") 
+        return <div>No feedback given</div>;
+    else if ((num === 0 || isNaN(num)) && type !== "Average") 
+        return <div></div>
+    return <p>{type}: {num}</p>;
+}
 
-const Header = ({header}) => <h1>{header}</h1>
+const Statistics = ({ good, neutral, bad, all, average, pos }) => {
+    return(
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td><StatType type="Good" num={good} /></td>
+                    </tr>
+                    <tr>
+                        <td><StatType type="Neutral" num={neutral} /></td>
+                    </tr>
+                    <tr>
+                        <td><StatType type="Bad" num={bad} /></td>
+                    </tr>
+                    <tr>
+                        <td><StatType type="All" num={all} /></td>
+                    </tr>
+                    <tr>
+                    <td><StatType type="Average" num={average} /></td>
+                    </tr>
+                    <tr>
+                        <td><StatType type="Positive Percentage" num={pos} /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    )
+}
 
-const Top = ({top, name}) => {
-    let largest = 0
-    for (let t of top) 
-        if (t > largest) largest = t;
-
+const Buttons = ({handleGood, handleNeutral, handleBad}) => {
     return (
         <div>
-            <p>{name[top.indexOf(largest)]}</p>
-            <p>has the most likes at: {largest}</p>
+            <Button text="Good" onClick={handleGood} />
+            <Button text="Neutral" onClick={handleNeutral} />
+            <Button text="Bad" onClick={handleBad} />
         </div>
-        )
+    )
 }
-    
+ 
 const App = () => {
-  const [selected, setSelected] = useState(0)
-  const [liked, setLiked] = useState(new Array(anecdotes.length).fill(0))
+    // save clicks of each button to own state
+    const [good, setGood] = useState(0)
+    const [neutral, setNeutral] = useState(0)
+    const [bad, setBad] = useState(0)
+    const [average, setAverage] = useState(0)
 
-  const handleNext = () => {
-    setSelected(Math.floor(Math.random() * anecdotes.length))
+    // handle all button clicks
+    const handleGood = () => {
+        setGood(good + 1);
+        setAverage(average + 1);
+    }
+
+    const handleNeutral = () => {
+        setNeutral(neutral + 1);
+        setAverage(average);
+    }
+
+    const handleBad = () => {
+        setBad(bad + 1);
+        setAverage(average - 1);
+    }
+
+    const all = (good, neutral, bad) => { 
+        return good + neutral + bad;
+    }
+
+    const positive = (good, neutral, bad) => {
+        let total = good + neutral + bad;
+        let positivePercent = (good / total) * 100
+
+        return `${positivePercent.toFixed(2)}`
+    }
+
+    return (
+      <div>
+        <Header text="Give Feedback" />
+            <Buttons handleGood={handleGood} 
+                     handleNeutral={handleNeutral} 
+                     handleBad={handleBad}/>
+
+        <Header text="Statistics" />    
+            <Statistics good={good} 
+                        bad={bad} 
+                        neutral={neutral} 
+                        all={all(good, neutral, bad)} 
+                        average={average / all(good,neutral, bad)}
+                        pos={positive(good,neutral, bad)}/>
+      </div>
+    )
   }
 
-  const handleLike = (selected) => () => {
-    const copy = [...liked]
-    copy[selected]++;
-    setLiked(copy)
-  }
-
-  return (
-    <div>
-        <Header header="Anecdote of the Day" />
-            <Anecdotes anecdotes={anecdotes[selected]}/>
-            <Score score={`has ${liked[selected]} votes`}/>
-            <Button text="Next Anecdote" onClick={handleNext}/>
-            <Button text="Like" onClick={handleLike(selected)} />
-        <Header header="Top Anecdote" />
-            <Top name={anecdotes} top={liked}/>
-    </div>
-  )
-}
-
-const anecdotes = [
-  'If it hurts, do it more often',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
-]
-
-ReactDOM.render(
-  <App anecdotes={anecdotes} />,
-  document.getElementById('root')
-)
-
+ReactDOM.render(<App />, document.getElementById('root'));
 
